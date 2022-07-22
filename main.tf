@@ -12,3 +12,8 @@ module "s3_bucket" {
   }
 
 }
+
+resource "aws_s3_object" "eaas" {
+  bucket = module.s3_bucket.s3_bucket_id
+  key = "${var.eaas_app_name}/${var.eaas_namespace}/"
+}
