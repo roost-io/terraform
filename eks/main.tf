@@ -5,14 +5,19 @@ module "eks" {
   cluster_name    = "terrafrom-eks-test"
   cluster_version = "1.22"
 
-  # cluster_endpoint_private_access = true
+  cluster_endpoint_private_access = false
 
-  vpc_id     = aws_default_vpc.eks_vpc.id    
-  subnet_ids = [aws_default_subnet.eks_subnet_a.id,aws_default_subnet.eks_subnet_b.id]
+  vpc_id     = aws_default_vpc.default.id
+  subnet_ids = [aws_default_subnet.default_az1.id, aws_default_subnet.default_az2.id]
 
-  eks_managed_node_group_defaults = {
-    disk_size      = 20
-    instance_types = ["t2.medium", "t2.medium"]
+  self_managed_node_group_defaults = {
+    ami_type                               = "AL2_x86_64"
+    instance_type                          = "t3.medium"
+    update_launch_template_default_version = true
+
+    iam_role_additional_policies = [
+      "arn:aws:iam:::role/EKSWorkerNodeRole"
+    ]
   }
   create_cloudwatch_log_group = false
 }
