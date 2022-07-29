@@ -7,8 +7,10 @@ module "eks" {
 
   cluster_endpoint_private_access = false
 
-  vpc_id     = aws_default_vpc.default.id
-  subnet_ids = [aws_default_subnet.default_az1.id, aws_default_subnet.default_az2.id]
+  # vpc_id     = aws_default_vpc.default.id
+  # subnet_ids = [aws_default_subnet.default_az1.id, aws_default_subnet.default_az2.id]
+  vpc_id     = "vpc-a4dcc5cc"
+  subnet_ids = ["subnet-e70d0b8f","subnet-5747f92c","subnet-ffea9eb3"]
 
   self_managed_node_group_defaults = {
     ami_type                               = "AL2_x86_64"
@@ -19,5 +21,8 @@ module "eks" {
       "arn:aws:iam:::role/EKSWorkerNodeRole"
     ]
   }
+  enable_irsa = false
+  enable_kms_key_rotation = false
+  iam_role_use_name_prefix = false
   create_cloudwatch_log_group = false
 }
