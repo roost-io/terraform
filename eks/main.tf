@@ -1,25 +1,14 @@
 module "eks" {
   source          = "terraform-aws-modules/eks/aws"
-  version         = "18.26.6"
+  version         = "17.24.0"
 
   cluster_name    = "terrafrom-eks-test"
   cluster_version = "1.22"
 
   cluster_endpoint_private_access = false
-
-  # vpc_id     = aws_default_vpc.default.id
-  # subnet_ids = [aws_default_subnet.default_az1.id, aws_default_subnet.default_az2.id]
   vpc_id     = "vpc-a4dcc5cc"
-  subnet_ids = ["subnet-e70d0b8f","subnet-5747f92c","subnet-ffea9eb3"]
-
-  # worker_groups = [
-  #   {
-  #     ami_type = "AL2_x86_64"
-  #     instance_type = "t3.medium"
-  #     asg_max_size  = 5
-  #   }
-  # ]
-  self_managed_node_group_defaults = {
+  subnets = ["subnet-e70d0b8f","subnet-5747f92c","subnet-ffea9eb3"]
+  node_groups_defaults = {
     ami_type                               = "AL2_x86_64"
     instance_type                          = "t3.medium"
     update_launch_template_default_version = true
@@ -29,10 +18,15 @@ module "eks" {
     ]
   }
   enable_irsa = false
-  enable_kms_key_rotation = false
-  iam_role_use_name_prefix = false
-  create_cloudwatch_log_group = false
-  create_aws_auth_configmap = true
-  # write_kubeconfig=true
-  # config_output_path="~/var/tmp/Roost/.kube/"
+  write_kubeconfig = true
+  kubeconfig_output_path = "kubeconfig/"
 }
+
+data "aws_eks_cluster" "cluster" {
+  name = module.eks.cluster_id
+}
+
+data "aws_eks_cluster_auth" "cluster" {
+  name = module.eks.cluster_id
+}
+
