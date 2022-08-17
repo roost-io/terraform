@@ -2,12 +2,14 @@ module "eks" {
   source          = "terraform-aws-modules/eks/aws"
   version         = "17.24.0"
 
-  cluster_name    = "terrafrom-eks-test"
+  cluster_name    = var.cluster_name
   cluster_version = "1.22"
 
   cluster_endpoint_private_access = false
-  vpc_id     = "vpc-a4dcc5cc"
-  subnets = ["subnet-e70d0b8f","subnet-5747f92c","subnet-ffea9eb3"]
+  cluster_security_group_id = aws_security_group.eks_security_group.id
+  vpc_id     = aws_default_vpc.default.id
+  subnets = [aws_default_subnet.default_az1.id, aws_default_subnet.default_az2.id]
+
   node_groups_defaults = {
     ami_type                               = "AL2_x86_64"
     instance_type                          = "t3.medium"
