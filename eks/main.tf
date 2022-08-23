@@ -21,7 +21,7 @@ module "eks" {
   }
   enable_irsa = false
   write_kubeconfig = true
-  kubeconfig_output_path = "kubeconfig/"
+  kubeconfig_output_path = (var.ROOST_APP_NAME != "" && var.ROOST_ENV_ID != "" ) ? format("/var/tmp/Roost/%s/%s/cluster/config", var.ROOST_APP_NAME, var.ROOST_ENV_ID) : "kubeconfig/config"
 }
 
 data "aws_eks_cluster" "cluster" {
