@@ -12,7 +12,7 @@ module "eks" {
 
   node_groups_defaults = {
     ami_type                               = "AL2_x86_64"
-    instance_type                          = "t3.medium"
+    instance_type                          = var.instance_type
     update_launch_template_default_version = true
 
     iam_role_additional_policies = [
@@ -31,4 +31,3 @@ data "aws_eks_cluster" "cluster" {
 data "aws_eks_cluster_auth" "cluster" {
   name = module.eks.cluster_id
 }
-
