@@ -3,3 +3,4 @@ terraform.tfvars
 *.pem
 .terraform*
 terraform.*
+roost.ks-01.config
