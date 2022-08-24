@@ -1,9 +1,9 @@
 variable "cluster_name" {
   type = string
-  default = format("roost-eaas-terraform-cluster-%s",formatdate("DDhhmmss",timestamp()))
+  default = ""
 }
 variable "availability_zones" {
-  description = "Provide more than one availabiltiy zones in list type format seperated by commas(,), where subnets are located. "
+  description = "Provide more than one availabiltiy zones in list type format seperated by commas(eg:%s), where subnets are located."
   type = list
   default = ["ap-south-1b", "ap-south-1c", "ap-south-1a"]
 }
@@ -11,7 +11,7 @@ variable "availability_zones" {
 variable "region" {
   description = "Region required."
   type = string
-  nullable = false
+  default = "ap-south-1"
 }
 variable "instance_type" {
   description = "Provide the required instance type for the cluster"
