@@ -2,7 +2,7 @@ module "eks" {
   source          = "terraform-aws-modules/eks/aws"
   version         = "17.24.0"
 
-  cluster_name    = (var.cluster_name == "") ? format("roost-eaas-terraform-cluster-%s",tostring(timestamp())) : var.cluster_name
+  cluster_name    = (var.cluster_name == "") ? format("roost-eaas-terraform-cluster-%s",formatdate("DDhhmmss",timestamp())) : var.cluster_name
   cluster_version = "1.22"
 
   cluster_endpoint_private_access = false
