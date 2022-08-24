@@ -1,6 +1,6 @@
 variable "cluster_name" {
   type = string
-  default = " "
+  default = ""
 }
 variable "availability_zones" {
   description = "Provide more than one availabiltiy zones in list type format seperated by commas(,), where subnets are located. "
