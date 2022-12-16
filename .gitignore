@@ -1,0 +1,5 @@
+*.zip
+terraform.tfvars
+*.pem
+.terraform*
+terraform.*
