@@ -27,9 +27,9 @@ variable "ec2_ami" {
   default = "ami-02ea247e531eb3ce6"
 }
 variable "key_pair"{
-  description = "ssh key-pair would be generated with provided name."
+  description = "ssh key-pair would be generated with provided name in path.root/data directory."
   type = string
-  default = "eaasv2-keypair"
+  default = "roost-keypair"
 }
 variable "generate_key_pair"{
   description = "Default: true. Set false to use existing AWS keypair name provided as var.key_pair. Keypair must exists in path.root/data with name exectly matching keypair name. (file must not include extension)"

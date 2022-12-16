@@ -10,8 +10,8 @@ key_pair = "roost-eaas-keypair"
 generate_key_pair = true
 device_name = "sdh"
 ip_block_vpc = "172.32.255.192"
-instance_type_controlplane = "t3a.medium"
-instance_type_jumphost = "t3a.micro"
+instance_type_controlplane = "t3.large"
+instance_type_jumphost = "t3.micro"
 
 google_client_id = ""
 google_client_secret = ""
