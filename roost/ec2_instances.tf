@@ -4,7 +4,6 @@ locals {
     "enterprise_logo" : var.company_logo,
     "enterprise_email_domain" : var.enterprise_email_domain,
     "enterprise_dns" : var.enterprise_dns,
-    "remote_console_proxy" : var.remote_console_proxy,
     "admin_email" : var.admin_email,
     "email_sender" : var.senders_email,
     "email_sender_pass" : var.senders_email_pass,

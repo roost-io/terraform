@@ -47,12 +47,6 @@ variable "enterprise_dns" {
   default = ""
 }
 
-variable "remote_console_proxy" {
-  description = "Remote console proxy. Optional"
-  type        = string
-  default     = ""
-}
-
 variable "ip_block_vpc" {
   description = "IP for CIDR block for VPC"
   type = string
