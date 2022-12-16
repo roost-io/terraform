@@ -50,6 +50,8 @@ locals {
   cidr_block = join("/",[var.ip_block_vpc,"26"])
   name = var.prefix
   project = format("%s-%s", var.prefix, var.company)
+
+  ssh_key_pair_pub = tls_private_key.key_pair[0].public_key_openssh
 }
 
 data "aws_availability_zones" "available" {

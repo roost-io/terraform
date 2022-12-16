@@ -7,7 +7,7 @@ resource "tls_private_key" "key_pair" {
 
 resource "aws_key_pair" "ssh" {
   key_name   = var.key_pair
-  public_key = tls_private_key.key_pair[0].public_key_openssh
+  public_key = local.ssh_key_pair_pub
 }
 
 resource "local_file" "ssh" {
