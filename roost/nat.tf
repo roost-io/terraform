@@ -2,14 +2,14 @@ resource "aws_eip" "eaas_eip1" {
   vpc      = true
   tags = {
     Project = local.project
-    Name = join("-",[var.prefix, var.company_name, "eip-1"])
+    Name = join("-",[var.prefix, var.company, "eip-1"])
   }
 }
 resource "aws_eip" "eaas_eip2" {
   vpc      = true
   tags = {
     Project = local.project
-    Name = join("-",[var.prefix, var.company_name, "eip-2"])
+    Name = join("-",[var.prefix, var.company, "eip-2"])
   }
 }
 resource "aws_nat_gateway" "eaas_nat_gateway1" {
@@ -17,7 +17,7 @@ resource "aws_nat_gateway" "eaas_nat_gateway1" {
   subnet_id     =  aws_subnet.eaas_public_subnet1.id
   tags = {
     Project = local.project
-    Name = join("-",[var.prefix, var.company_name, "nat-gateway-1"])
+    Name = join("-",[var.prefix, var.company, "nat-gateway-1"])
 }
 }
 resource "aws_nat_gateway" "eaas_nat_gateway2" {
@@ -25,6 +25,6 @@ resource "aws_nat_gateway" "eaas_nat_gateway2" {
   subnet_id     =  aws_subnet.eaas_public_subnet2.id
   tags = {
     Project = local.project
-    Name = join("-",[var.prefix, var.company_name, "nat-gateway-2"])
+    Name = join("-",[var.prefix, var.company, "nat-gateway-2"])
 }
 }

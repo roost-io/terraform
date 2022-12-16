@@ -5,7 +5,7 @@ resource "aws_subnet" "eaas_public_subnet1" {
   map_public_ip_on_launch = true
   tags = {
     Project = local.project
-    Name = join("-",[var.prefix, var.company_name, "public-subnet-1",local.az1])
+    Name = join("-",[var.prefix, var.company, "public-subnet-1",local.az1])
   }
 }
 resource "aws_subnet" "eaas_public_subnet2" {
@@ -15,7 +15,7 @@ resource "aws_subnet" "eaas_public_subnet2" {
   map_public_ip_on_launch = true
   tags = {
     Project = local.project
-    Name = join("-",[var.prefix, var.company_name, "public-subnet-2",local.az2])
+    Name = join("-",[var.prefix, var.company, "public-subnet-2",local.az2])
   }
 }
 resource "aws_subnet" "eaas_private_subnet1" {
@@ -25,7 +25,7 @@ resource "aws_subnet" "eaas_private_subnet1" {
   map_public_ip_on_launch = false
   tags = {
     Project = local.project
-    Name = join("-",[var.prefix, var.company_name, "private-subnet-1",local.az1])
+    Name = join("-",[var.prefix, var.company, "private-subnet-1",local.az1])
   }
 }
 resource "aws_subnet" "eaas_private_subnet2" {
@@ -35,7 +35,7 @@ resource "aws_subnet" "eaas_private_subnet2" {
   map_public_ip_on_launch = false
   tags = {
     Project = local.project
-    Name = join("-",[var.prefix, var.company_name, "private-subnet-2",local.az2])
+    Name = join("-",[var.prefix, var.company, "private-subnet-2",local.az2])
   }
 }
 # resource "aws_db_subnet_group" "eaas_subnet_group" {

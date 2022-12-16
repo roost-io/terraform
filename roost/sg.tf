@@ -92,7 +92,7 @@ egress {
 }
   tags = {
     Project = local.project
-    Name = join("-",[var.prefix, var.company_name, "instances"])
+    Name = join("-",[var.prefix, var.company, "instances"])
   }
 }
 
@@ -116,7 +116,7 @@ resource "aws_security_group" "sg_eaas_loadbalancer" {
   }
   tags = {
     Project = local.project
-    Name = join("-",[var.prefix, var.company_name, "loadbalancer"])
+    Name = join("-",[var.prefix, var.company, "loadbalancer"])
   }
 }
 # resource "aws_security_group" "sg_eaas_database" {
@@ -140,7 +140,7 @@ resource "aws_security_group" "sg_eaas_loadbalancer" {
 #   }
 #   tags = {
 #     Project = local.project
-#     Name = join("-",[var.prefix, var.company_name, "database"])
+#     Name = join("-",[var.prefix, var.company, "database"])
 #   }
 # }
 resource "aws_security_group" "sg_eaas_jumphost" {
@@ -163,6 +163,6 @@ resource "aws_security_group" "sg_eaas_jumphost" {
   }
   tags = {
     Project = local.project
-    Name = join("-",[var.prefix, var.company_name, "jumphost"])
+    Name = join("-",[var.prefix, var.company, "jumphost"])
   }
 }

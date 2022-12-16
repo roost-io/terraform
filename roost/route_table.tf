@@ -6,7 +6,7 @@ resource "aws_route_table" "eaas_route_table1" {
   }
   tags = {
     Project = local.project
-    Name = join("-",[var.prefix, var.company_name, "nat-rtb-1"])
+    Name = join("-",[var.prefix, var.company, "nat-rtb-1"])
 
     }
 }
@@ -18,7 +18,7 @@ resource "aws_route_table" "eaas_route_table2" {
   }
   tags = {
     Project = local.project
-    Name = join("-",[var.prefix, var.company_name, "na-rtb-2"])
+    Name = join("-",[var.prefix, var.company, "na-rtb-2"])
 
     }
 }
@@ -30,7 +30,7 @@ resource "aws_route_table" "eaas_route_table3" {
   }
   tags = {
     Project = local.project
-    Name = join("-",[var.prefix, var.company_name, "igw-rtb"])
+    Name = join("-",[var.prefix, var.company, "igw-rtb"])
 
   }
 }

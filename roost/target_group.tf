@@ -13,7 +13,7 @@ resource "aws_lb_target_group" "eaas_target_group" {
   }
  tags = {
     Project = local.name
-    Name = join("-",[var.prefix, var.company_name, "target-group"])
+    Name = join("-",[var.prefix, var.company, "target-group"])
   }
 }
 resource "aws_lb_target_group_attachment" "controlplane_attachment" {

@@ -26,7 +26,7 @@ okta_client_secret = ""
 okta_issuer = ""
 roost_jwt_token = ""
 
-company_name = "zbio"
+company = ""
 company_logo = "https://roost.ai/hubfs/logos/Roost.ai-logo-gold.svg"
 enterprise_email_domain = "example.com"
 admin_email = "admin@email"

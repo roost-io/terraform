@@ -135,7 +135,7 @@ variable "deletion_protection"{
   type = bool
   default = false
 }
-variable "company_name" {
+variable "company" {
   description = "Name of the company"
   type = string
   default = "zbio"

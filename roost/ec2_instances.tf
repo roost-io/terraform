@@ -1,6 +1,6 @@
 locals {
   roost_eaas_config_json = jsonencode({
-    "enterprise_name" : var.company_name
+    "enterprise_name" : var.company
     "enterprise_logo" : var.company_logo,
     "enterprise_email_domain" : var.enterprise_email_domain,
     "enterprise_dns" : var.enterprise_dns,
@@ -49,7 +49,7 @@ locals {
 
   cidr_block = join("/",[var.ip_block_vpc,"26"])
   name = var.prefix
-  project = format("%s-%s", var.prefix, var.company_name)
+  project = format("%s-%s", var.prefix, var.company)
 }
 
 data "aws_availability_zones" "available" {
@@ -95,7 +95,7 @@ resource "aws_instance" "roost_controlplane" {
   }
   tags = {
     Project = local.project
-    Name = join("-",[var.prefix, var.company_name, "controlplane"])
+    Name = join("-",[var.prefix, var.company, "controlplane"])
   }
 }
 resource "aws_instance" "roost_eaas_server" {  
@@ -114,7 +114,7 @@ resource "aws_instance" "roost_eaas_server" {
   }
   tags = {
     Project = local.project
-    Name = join("-",[var.prefix, var.company_name, "server"])
+    Name = join("-",[var.prefix, var.company, "server"])
   }
 }
 resource "aws_instance" "roost_jumphost" {
@@ -133,7 +133,7 @@ resource "aws_instance" "roost_jumphost" {
   }
   tags = {
     Project = local.project
-    Name = join("-",[var.prefix, var.company_name, "jumphost"])
+    Name = join("-",[var.prefix, var.company, "jumphost"])
   }
 }
 resource "aws_instance" "roost_ssh" {
@@ -152,7 +152,7 @@ resource "aws_instance" "roost_ssh" {
   }
   tags = {
     Project = local.project
-    Name = join("-",[var.prefix, var.company_name, "ssh"])
+    Name = join("-",[var.prefix, var.company, "ssh"])
   }
 }
 
@@ -216,8 +216,8 @@ resource "null_resource" "provision-controlplane" {
 
   provisioner "remote-exec" {
     inline = [
-      "echo Running 'curl -s https://roost-stable.s3.us-west-2.amazonaws.com/enterprise/roost.sh | SETUP=1 CUSTOMER=${var.company_name}'",
-      "curl -s https://roost-stable.s3.us-west-2.amazonaws.com/enterprise/roost.sh | SETUP=1 CUSTOMER=${var.company_name} bash -",
+      "echo Running 'curl -s https://roost-stable.s3.us-west-2.amazonaws.com/enterprise/roost.sh | SETUP=1 CUSTOMER=${var.company}'",
+      "curl -s https://roost-stable.s3.us-west-2.amazonaws.com/enterprise/roost.sh | SETUP=1 CUSTOMER=${var.company} bash -",
       
       "echo 'Running: ROOST_VER=${var.roost_version} /var/tmp/Roost/bin/roost-enterprise.sh -c /var/tmp/Roost/config.json -i roost' ",
       "ROOST_VER=${var.roost_version} /var/tmp/Roost/bin/roost-enterprise.sh -c /var/tmp/Roost/config.json -i roost"

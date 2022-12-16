@@ -10,6 +10,6 @@ module "acm" {
   validation_allow_overwrite_records = true
   tags = {
     Project = local.project
-    Name = join("-",[var.prefix, var.company_name, "acm-cert"])
+    Name = join("-",[var.prefix, var.company, "acm-cert"])
   }
 }

@@ -6,7 +6,7 @@ resource "aws_lb" "eaas_load_balancer" {
   enable_deletion_protection = var.deletion_protection
   tags = {
     Project = local.project
-    Name = join("-",[var.prefix, var.company_name, "loadbalancer"])
+    Name = join("-",[var.prefix, var.company, "loadbalancer"])
   }
 }
 
@@ -21,6 +21,6 @@ resource "aws_lb_listener" "eaas-lb_listner" {
   }
   tags = {
     Project = local.project
-    Name = join("-",[var.prefix, var.company_name, "loadbalancer-listner"])
+    Name = join("-",[var.prefix, var.company, "loadbalancer-listner"])
   }
 }
