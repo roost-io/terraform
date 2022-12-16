@@ -1,0 +1,26 @@
+resource "aws_lb" "eaas_load_balancer" {
+  name               = "eaas-load-balancer"
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.sg_eaas_loadbalancer.id]
+  subnets            = [aws_subnet.eaas_public_subnet1.id , aws_subnet.eaas_public_subnet2.id ]
+  enable_deletion_protection = var.deletion_protection
+  tags = {
+    Project = local.project
+    Name = join("-",[var.prefix, var.company_name, "loadbalancer"])
+  }
+}
+
+resource "aws_lb_listener" "eaas-lb_listner" {
+  load_balancer_arn = aws_lb.eaas_load_balancer.arn
+  certificate_arn   = module.acm.acm_certificate_arn
+  port              = "443"
+  protocol          = "HTTPS"
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.eaas_target_group.arn
+  }
+  tags = {
+    Project = local.project
+    Name = join("-",[var.prefix, var.company_name, "loadbalancer-listner"])
+  }
+}

@@ -1,0 +1,17 @@
+
+resource "tls_private_key" "key_pair" {
+  count = var.generate_key_pair ? 1 : 0
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+resource "aws_key_pair" "ssh" {
+  key_name   = var.key_pair
+  public_key = tls_private_key.key_pair[0].public_key_openssh
+}
+
+resource "local_file" "ssh" {
+  content         = sensitive(tls_private_key.key_pair[0].private_key_pem)
+  filename        = "${path.root}/data/${var.key_pair}"
+  file_permission = "0600"
+}
