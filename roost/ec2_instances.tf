@@ -9,7 +9,9 @@ locals {
     "email_sender_pass" : var.senders_email_pass,
     "email_smtp_host" : var.email_smtp_host,
     "email_smtp_port" : var.email_smtp_port,
-    "load_balancer" : "true",
+    "eaas_server_ip" : aws_instance.roost_eaas_server.private_ip,
+    "eaas_server_pem_key" : "/var/tmp/Roost/.ssh/${var.key_pair}",
+    "eaas_server_username" : "ubuntu",
     "enterprise_ssl_certificate_path" : var.enterprise_ssl_certificate_path,
     "enterprise_ssl_certificate_key_path" : var.enterprise_ssl_certificate_key_path,
     "ENV_SERVER" : {
@@ -156,7 +158,6 @@ resource "aws_instance" "roost_ssh" {
     Name = join("-",[var.prefix, var.company, "bastion-ssh"])
   }
 }
-
 resource "null_resource" "deploy-ssh-keypair-roost-ssh" {
   # Changes to controlplane id requires re-provisioning
   triggers = {
@@ -176,13 +177,15 @@ resource "null_resource" "deploy-ssh-keypair-roost-ssh" {
     content = sensitive(file("${path.root}/data/${var.key_pair}"))
     destination = "/home/ubuntu/.ssh/${var.key_pair}"
   }
-
   provisioner "remote-exec" {
     # Bootstrap script called with private_ip of each node in the cluster
     inline = [
       "echo roost_ssh IP '${ aws_instance.roost_ssh.public_ip}' >> /tmp/test",
       "echo Controlplane IP '${aws_instance.roost_controlplane.private_dns}' >> /tmp/test",
-      "chmod 0600 /home/ubuntu/.ssh/${var.key_pair}"
+      "chmod 0600 /home/ubuntu/.ssh/${var.key_pair}",
+      "echo alias roostcp=\'ssh -i /home/ubuntu/.ssh/${var.key_pair} ubuntu@${aws_instance.roost_controlplane.private_ip}\' >> /home/ubuntu/.aliases",
+      "echo alias roosteaas=\'ssh -i /home/ubuntu/.ssh/${var.key_pair} ubuntu@${aws_instance.roost_eaas_server.private_ip}\' >> /home/ubuntu/.aliases",
+      "echo alias roostjump=\'ssh -i /home/ubuntu/.ssh/${var.key_pair} ubuntu@${aws_instance.roost_jumphost.private_ip}\' >> /home/ubuntu/.aliases",
     ]
   }
 }
@@ -209,17 +212,35 @@ resource "null_resource" "provision-controlplane" {
     ]
      on_failure = fail
   }
+
+  provisioner "remote-exec" {
+    inline = [
+      "echo Running 'curl -s https://roost-stable.s3.us-west-2.amazonaws.com/enterprise/roost.sh | SETUP=1 CUSTOMER=${var.company}'",
+      "curl -s https://roost-stable.s3.us-west-2.amazonaws.com/enterprise/roost.sh | SETUP=1 CUSTOMER=${var.company} bash -",
+    ]
+    on_failure = fail
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "mkdir -p /var/tmp/Roost/.ssh",
+    ]
+     on_failure = fail
+  }
+
   provisioner "file" {
     content = local.roost_eaas_config_json
     destination = "/var/tmp/Roost/config.json"
     on_failure = fail
   }
 
+  provisioner "file" {
+    content = sensitive(file("${path.root}/data/${var.key_pair}"))
+    destination = "/var/tmp/Roost/.ssh/${var.key_pair}"
+  }
+
   provisioner "remote-exec" {
     inline = [
-      "echo Running 'curl -s https://roost-stable.s3.us-west-2.amazonaws.com/enterprise/roost.sh | SETUP=1 CUSTOMER=${var.company}'",
-      "curl -s https://roost-stable.s3.us-west-2.amazonaws.com/enterprise/roost.sh | SETUP=1 CUSTOMER=${var.company} bash -",
-      
       "echo 'Running: ROOST_VER=${var.roost_version} /var/tmp/Roost/bin/roost-enterprise.sh -c /var/tmp/Roost/config.json -i roost' ",
       "ROOST_VER=${var.roost_version} /var/tmp/Roost/bin/roost-enterprise.sh -c /var/tmp/Roost/config.json -i roost"
     ]

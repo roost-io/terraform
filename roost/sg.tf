@@ -131,16 +131,31 @@ resource "aws_security_group" "eaas_server" {
   revoke_rules_on_delete = true
 
   ingress {
-    description      = "Allow SSH from Bastion"
+    description      = "SSH from Bastion"
     protocol         = "tcp"
     from_port        = 22
     to_port          = 22
     security_groups  = [aws_security_group.bastion.id]
   }
   ingress {
-    description      = "Allow TCP from Controlplane"
-    from_port        = 0
-    to_port          = 65535
+    description      = "SSH from Controlplane"
+    protocol         = "tcp"
+    from_port        = 22
+    to_port          = 22
+    security_groups = [aws_security_group.controlplane.id]
+  }
+  ingress {
+    description      = "Custom TCP for Docker"
+    from_port        = 5000
+    to_port          = 5005
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+  ingress {
+    description      = "Custom TCP from Controlplane"
+    from_port        = 60001
+    to_port          = 62120
     protocol         = "tcp"
     security_groups = [aws_security_group.controlplane.id]
   }
@@ -262,19 +277,40 @@ resource "aws_security_group" "jumphost" {
   description = "Security group for Roost jumphost"
   vpc_id      = aws_vpc.vpc.id
   ingress {
-    description      = "Allow SSH from Bastion"
+    description      = "SSH from Bastion"
     from_port        = 22
     to_port          = 22
     protocol         = "tcp"
     security_groups  = [aws_security_group.bastion.id]
-    # cidr_blocks      = ["0.0.0.0/0"]
   }
   ingress {
-    description      = "All TCP from Controlplane"
-    from_port        = 0
-    to_port          = 65535
+    description      = "SSH from Controlplane"
+    protocol         = "tcp"
+    from_port        = 22
+    to_port          = 22
+    security_groups = [aws_security_group.controlplane.id]
+  }
+  ingress {
+    description      = "Custom TCP for Docker"
+    from_port        = 5000
+    to_port          = 5005
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+  ingress {
+    description      = "Custom TCP from Controlplane"
+    from_port        = 60001
+    to_port          = 62120
     protocol         = "tcp"
     security_groups = [aws_security_group.controlplane.id]
+  }
+  ingress {
+    description      = "Allow RoostApi access from EaaS Server"
+    from_port        = 60001
+    to_port          = 60001
+    protocol         = "tcp"
+    security_groups = [aws_security_group.eaas_server.id]
   }
   egress {
     from_port        = 0
