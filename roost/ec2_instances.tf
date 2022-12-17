@@ -54,6 +54,8 @@ locals {
 
   ssh_key_pair_pub = length(tls_private_key.key_pair) > 0 ? tls_private_key.key_pair[0].public_key_openssh : ""
   ssh_key_pair_priv = length(tls_private_key.key_pair) > 0 ? tls_private_key.key_pair[0].private_key_pem : ""
+
+
 }
 
 data "aws_availability_zones" "available" {
@@ -86,10 +88,11 @@ resource "aws_instance" "roost_controlplane" {
   monitoring             = true
   associate_public_ip_address = false
   
-  private_dns_name_options {
-    enable_resource_name_dns_a_record = true
-    hostname_type = "ip-name"
-  }
+  # private_dns_name_options {
+  #   enable_resource_name_dns_a_record = true
+  #   enable_resource_name_dns_aaaa_record = true
+  #   hostname_type = "resource-name"
+  # }
 
   ebs_block_device {
     delete_on_termination = false
@@ -110,6 +113,13 @@ resource "aws_instance" "roost_eaas_server" {
   vpc_security_group_ids = [aws_security_group.eaas_server.id ]
   monitoring             = true
   associate_public_ip_address = false
+  
+  #  private_dns_name_options {
+  #   enable_resource_name_dns_a_record = true
+  #   enable_resource_name_dns_aaaa_record = true
+  #   hostname_type = "resource-name"
+  # }
+
   ebs_block_device {
     delete_on_termination = false
     device_name = join("/",["","dev",var.device_name])
@@ -129,6 +139,13 @@ resource "aws_instance" "roost_jumphost" {
   vpc_security_group_ids = [aws_security_group.jumphost.id]
   monitoring             = true
   associate_public_ip_address = false
+  
+  # private_dns_name_options {
+  #   enable_resource_name_dns_a_record = true
+  #   enable_resource_name_dns_aaaa_record = true
+  #   hostname_type = "resource-name"
+  # }
+
   ebs_block_device {
     delete_on_termination = false
     device_name = join("/",["","dev",var.device_name])
@@ -140,6 +157,7 @@ resource "aws_instance" "roost_jumphost" {
     Name = join("-",[var.prefix, var.company, "jumphost-server"])
   }
 }
+
 resource "aws_instance" "roost_ssh" {
   ami                    = var.ec2_ami
   instance_type          = var.instance_type_jumphost
@@ -148,6 +166,13 @@ resource "aws_instance" "roost_ssh" {
   vpc_security_group_ids = [aws_security_group.bastion.id ]
   monitoring             = true
   associate_public_ip_address = true
+  
+  # private_dns_name_options {
+  #   enable_resource_name_dns_a_record = true
+  #   enable_resource_name_dns_aaaa_record = true
+  #   hostname_type = "resource-name"
+  # }
+
   ebs_block_device {
     delete_on_termination = false
     device_name = join("/",["","dev",var.device_name])
@@ -160,7 +185,7 @@ resource "aws_instance" "roost_ssh" {
   }
 }
 resource "null_resource" "deploy-ssh-keypair-roost-ssh" {
-  # Changes to controlplane id requires re-provisioning
+  # Changes to roost_ssh id requires re-provisioning
   triggers = {
     roost_ssh_instance_id = aws_instance.roost_ssh.id
   }
@@ -178,6 +203,17 @@ resource "null_resource" "deploy-ssh-keypair-roost-ssh" {
     content = sensitive(file("${path.root}/data/${var.key_pair}"))
     destination = "/home/ubuntu/.ssh/${var.key_pair}"
   }
+
+  provisioner "file" {
+    content = templatefile("${path.root}/data/ssh_config.tftpl",{
+      controlplane_ip = "${aws_instance.roost_controlplane.private_ip}",
+      eaas_server_ip = "${aws_instance.roost_eaas_server.private_ip}",
+      jumphost_ip = "${aws_instance.roost_jumphost.private_ip}",
+      key_pair_name = "${var.key_pair}"
+    })
+    destination = "/home/ubuntu/.ssh/config"
+  }
+
   provisioner "remote-exec" {
     # Bootstrap script called with private_ip of each node in the cluster
     inline = [
@@ -190,6 +226,7 @@ resource "null_resource" "deploy-ssh-keypair-roost-ssh" {
     ]
   }
 }
+
 resource "null_resource" "provision-controlplane" {
   # Changes to controlplane id requires re-provisioning
   triggers = {

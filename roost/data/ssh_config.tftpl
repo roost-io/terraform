@@ -1,0 +1,17 @@
+StrictHostKeyChecking no
+
+Host cp
+    HostName ${controlplane_ip}
+    User ubuntu
+    Port 22
+    IdentityFile ~/.ssh/${key_pair_name}
+Host eaas
+    HostName ${eaas_server_ip}
+    User ubuntu
+    Port 22
+    IdentityFile ~/.ssh/${key_pair_name}
+Host jump
+    HostName ${jumphost_ip}
+    User ubuntu
+    Port 22
+    IdentityFile ~/.ssh/${key_pair_name}

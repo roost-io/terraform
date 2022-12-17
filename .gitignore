@@ -7,4 +7,4 @@ terraform.*
 
 # Secure files
 roost/data/**
-!roost/data/put_secure_files_here
+!roost/data/*.tftpl
