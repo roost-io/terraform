@@ -3,3 +3,8 @@ terraform.tfvars
 *.pem
 .terraform*
 terraform.*
+!terraform.tfvars.original
+
+# Secure files
+roost/data/**
+!roost/data/put_secure_files_here
