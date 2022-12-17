@@ -52,7 +52,8 @@ locals {
   name = var.prefix
   project = format("%s-%s", var.prefix, var.company)
 
-  ssh_key_pair_pub = tls_private_key.key_pair[0].public_key_openssh
+  ssh_key_pair_pub = length(tls_private_key.key_pair) > 0 ? tls_private_key.key_pair[0].public_key_openssh : ""
+  ssh_key_pair_priv = length(tls_private_key.key_pair) > 0 ? tls_private_key.key_pair[0].private_key_pem : ""
 }
 
 data "aws_availability_zones" "available" {
@@ -183,9 +184,9 @@ resource "null_resource" "deploy-ssh-keypair-roost-ssh" {
       "echo roost_ssh IP '${ aws_instance.roost_ssh.public_ip}' >> /tmp/test",
       "echo Controlplane IP '${aws_instance.roost_controlplane.private_dns}' >> /tmp/test",
       "chmod 0600 /home/ubuntu/.ssh/${var.key_pair}",
-      "echo alias roostcp=\'ssh -i /home/ubuntu/.ssh/${var.key_pair} ubuntu@${aws_instance.roost_controlplane.private_ip}\' >> /home/ubuntu/.aliases",
-      "echo alias roosteaas=\'ssh -i /home/ubuntu/.ssh/${var.key_pair} ubuntu@${aws_instance.roost_eaas_server.private_ip}\' >> /home/ubuntu/.aliases",
-      "echo alias roostjump=\'ssh -i /home/ubuntu/.ssh/${var.key_pair} ubuntu@${aws_instance.roost_jumphost.private_ip}\' >> /home/ubuntu/.aliases",
+      "echo alias roostcp=\"ssh -i /home/ubuntu/.ssh/${var.key_pair} ubuntu@${aws_instance.roost_controlplane.private_ip}\" >> /home/ubuntu/.aliases",
+      "echo alias roosteaas=\"ssh -i /home/ubuntu/.ssh/${var.key_pair} ubuntu@${aws_instance.roost_eaas_server.private_ip}\" >> /home/ubuntu/.aliases",
+      "echo alias roostjump=\"ssh -i /home/ubuntu/.ssh/${var.key_pair} ubuntu@${aws_instance.roost_jumphost.private_ip}\" >> /home/ubuntu/.aliases",
     ]
   }
 }

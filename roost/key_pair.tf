@@ -11,7 +11,7 @@ resource "aws_key_pair" "ssh" {
 }
 
 resource "local_file" "ssh" {
-  content         = sensitive(tls_private_key.key_pair[0].private_key_pem)
+  content         = sensitive(local.ssh_key_pair_priv)
   filename        = "${path.root}/data/${var.key_pair}"
   file_permission = "0600"
 }
