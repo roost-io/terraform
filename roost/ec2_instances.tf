@@ -79,7 +79,7 @@ resource "aws_instance" "roost_controlplane" {
   instance_type          = var.instance_type_controlplane
   key_name               = var.key_pair
   subnet_id              = aws_subnet.eaas_private_subnet2.id
-  vpc_security_group_ids = [aws_security_group.sg_eaas_instances.id]
+  vpc_security_group_ids = [aws_default_security_group.roost_vpc.id, aws_security_group.controlplane.id]
   monitoring             = true
   associate_public_ip_address = false
   
@@ -104,7 +104,7 @@ resource "aws_instance" "roost_eaas_server" {
   instance_type          = var.instance_type_controlplane
   key_name               = var.key_pair
   subnet_id              = aws_subnet.eaas_private_subnet1.id
-  vpc_security_group_ids = [aws_security_group.sg_eaas_jumphost.id]
+  vpc_security_group_ids = [aws_default_security_group.roost_vpc.id, aws_security_group.eaas_server.id ]
   monitoring             = true
   associate_public_ip_address = false
   ebs_block_device {
@@ -123,9 +123,9 @@ resource "aws_instance" "roost_jumphost" {
   instance_type          = var.instance_type_controlplane
   key_name               = var.key_pair
   subnet_id              = aws_subnet.eaas_private_subnet2.id
-  vpc_security_group_ids = [aws_security_group.sg_eaas_jumphost.id]
+  vpc_security_group_ids = [aws_default_security_group.roost_vpc.id, aws_security_group.jumphost.id]
   monitoring             = true
- associate_public_ip_address = false
+  associate_public_ip_address = false
   ebs_block_device {
     delete_on_termination = false
     device_name = join("/",["","dev",var.device_name])
@@ -142,7 +142,7 @@ resource "aws_instance" "roost_ssh" {
   instance_type          = var.instance_type_jumphost
   key_name               = var.key_pair
   subnet_id              = aws_subnet.eaas_public_subnet1.id
-  vpc_security_group_ids = [aws_security_group.sg_eaas_jumphost.id]
+  vpc_security_group_ids = [aws_default_security_group.roost_vpc.id, aws_security_group.bastion.id ]
   monitoring             = true
   associate_public_ip_address = true
   ebs_block_device {
