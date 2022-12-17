@@ -1,25 +1,16 @@
 
-resource "aws_default_security_group" "roost_vpc" {
-  vpc_id = aws_vpc.vpc.id
-  revoke_rules_on_delete = true
-
+resource "aws_security_group" "loadbalancer" {
+  name        = "Roost LoadBalancer SG"
+  description = "Allow TLS inbound traffic"
+  vpc_id      = aws_vpc.vpc.id
   ingress {
-    description      = "Allow all traffic from within current VPC"
-    protocol         = -1
-    self             = true
-    from_port        = 0
-    to_port          = 0
+    description      = "HTTPS connection from internet"
+    from_port        = 443
+    to_port          = 443
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
     ipv6_cidr_blocks = ["::/0"]
   }
-
-  ingress {
-    description     = "Allow SSH from SSH server only"
-    protocol        = "tcp"
-    from_port       = 22
-    to_port         = 22
-    security_groups = [aws_security_group.bastion.id]
-  }
-
   egress {
     from_port        = 0
     to_port          = 0
@@ -27,15 +18,15 @@ resource "aws_default_security_group" "roost_vpc" {
     cidr_blocks      = ["0.0.0.0/0"]
     ipv6_cidr_blocks = ["::/0"]
   }
-
   tags = {
     Project = local.project
-    Name = join("-",[var.prefix, var.company, "vpc-sg"])
+    Name = join("-",[var.prefix, var.company, "loadbalancer-sg"])
   }
 }
 
 resource "aws_security_group" "bastion" {
-  description = "Allow ALL traffic routing wihtin VPC"
+  name        = "Roost Bastion SG"
+  description = "Allow SSH from anywhere to Bastion"
   vpc_id      = aws_vpc.vpc.id
   revoke_rules_on_delete = true
   ingress {
@@ -60,7 +51,45 @@ resource "aws_security_group" "bastion" {
   }
 }
 
+resource "aws_default_security_group" "roost_vpc" {
+  # name                   = "Roost VPC SG"
+  # description = "Allow ALL traffic routing within VPC"
+  vpc_id                 = aws_vpc.vpc.id
+  revoke_rules_on_delete = true
+
+  ingress {
+    description      = "Allow all traffic from within current VPC"
+    protocol         = -1
+    self             = true
+    from_port        = 0
+    to_port          = 0
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+#  ingress {
+#    description     = "Allow SSH from SSH server only"
+#    protocol        = "tcp"
+#    from_port       = 22
+#    to_port         = 22
+#    security_groups = [aws_security_group.bastion.id]
+#  }
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+  tags = {
+    Project = local.project
+    Name = join("-",[var.prefix, var.company, "vpc-sg"])
+  }
+}
+
 resource "aws_security_group" "controlplane" {
+  name        = "Roost Enterprise ControlPlane SG"
   description = "Security group for Roost controlplane"
   vpc_id      = aws_vpc.vpc.id
   revoke_rules_on_delete = true
@@ -71,7 +100,14 @@ resource "aws_security_group" "controlplane" {
     from_port        = 22
     to_port          = 22
     security_groups  = [aws_security_group.bastion.id]
-    ipv6_cidr_blocks = ["::/0"]
+  }
+
+  ingress {
+    description      = "Allow HTTPS from LoadBalancer"
+    protocol         = "tcp"
+    from_port        = 443
+    to_port          = 443
+    security_groups  = [aws_security_group.loadbalancer.id]
   }
 
   egress {
@@ -89,6 +125,7 @@ resource "aws_security_group" "controlplane" {
 }
 
 resource "aws_security_group" "eaas_server" {
+  name        = "Roost EaaS Server SG"
   description = "Security group for Roost EaaS server"
   vpc_id      = aws_vpc.vpc.id
   revoke_rules_on_delete = true
@@ -99,7 +136,13 @@ resource "aws_security_group" "eaas_server" {
     from_port        = 22
     to_port          = 22
     security_groups  = [aws_security_group.bastion.id]
-    ipv6_cidr_blocks = ["::/0"]
+  }
+  ingress {
+    description      = "Allow TCP from Controlplane"
+    from_port        = 0
+    to_port          = 65535
+    protocol         = "tcp"
+    security_groups = [aws_security_group.controlplane.id]
   }
 
   egress {
@@ -112,7 +155,7 @@ resource "aws_security_group" "eaas_server" {
 
  tags = {
     Project = local.project
-    Name = join("-",[var.prefix, var.company, "controlplane-sg"])
+    Name = join("-",[var.prefix, var.company, "eaas-sg"])
   }
 }
 
@@ -214,39 +257,24 @@ resource "aws_security_group" "eaas_server" {
 #   }
 # }
 
-resource "aws_security_group" "loadbalancer" {
-  name        = "Security group for Roost loadbalancer"
-  description = "Allow TLS inbound traffic"
-  vpc_id      = aws_vpc.vpc.id
-  ingress {
-    description      = "HTTPS connection from internet"
-    from_port        = 443
-    to_port          = 443
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-  }
-  egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-  tags = {
-    Project = local.project
-    Name = join("-",[var.prefix, var.company, "loadbalancer"])
-  }
-}
-
 resource "aws_security_group" "jumphost" {
+  name        = "Roost JumpHost Server SG"
   description = "Security group for Roost jumphost"
   vpc_id      = aws_vpc.vpc.id
   ingress {
-    description      = "SSH port"
+    description      = "Allow SSH from Bastion"
     from_port        = 22
     to_port          = 22
     protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
+    security_groups  = [aws_security_group.bastion.id]
+    # cidr_blocks      = ["0.0.0.0/0"]
+  }
+  ingress {
+    description      = "All TCP from Controlplane"
+    from_port        = 0
+    to_port          = 65535
+    protocol         = "tcp"
+    security_groups = [aws_security_group.controlplane.id]
   }
   egress {
     from_port        = 0
@@ -257,6 +285,6 @@ resource "aws_security_group" "jumphost" {
   }
   tags = {
     Project = local.project
-    Name = join("-",[var.prefix, var.company, "jumphost"])
+    Name = join("-",[var.prefix, var.company, "jumphost-sg"])
   }
 }
