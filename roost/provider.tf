@@ -6,7 +6,7 @@ terraform {
   backend "s3" {
     region = "ap-south-1"
     bucket = "eaas-demo-terraform-states"
-    key = "eaas-enterprise"
+    key = "eaas-generac"
   }
   required_providers {
     aws = {
